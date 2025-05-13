@@ -1,10 +1,14 @@
 "use client"
 
-import { Row, Col } from "react-bootstrap"
+import { Row, Col, Modal, Button } from "react-bootstrap"
 import ProductCard from "./ProductCard"
+import { useState } from "react"
 
-const ProductList = ({ products, addToCart, loading, error }) => {
-  console.log('ProductList render:', { products, loading, error });
+const ProductList = ({ products, addToCart, removeFromCart, cartItems, updateQuantity, loading, error }) => {
+  const [showModal, setShowModal] = useState(false);
+
+  const handleClose = () => setShowModal(false);
+  const handleShow = () => setShowModal(true);
 
   if (loading) {
     return (
@@ -33,14 +37,41 @@ const ProductList = ({ products, addToCart, loading, error }) => {
   }
 
   return (
-    <div>
+    <div className="mx-4 mx-md-5">
       <Row xs={1} sm={2} md={3} lg={4} className="g-4">
         {products.map((product) => (
           <Col key={product.id}>
-            <ProductCard product={product} addToCart={addToCart} />
+            <ProductCard 
+              product={product} 
+              addToCart={addToCart} 
+              removeFromCart={removeFromCart}
+              cartItems={cartItems}
+              updateQuantity={updateQuantity}
+            />
           </Col>
         ))}
       </Row>
+      
+      <div className="text-center mt-4">
+        <Button variant="link" onClick={handleShow} className="text-muted">
+          Aviso Legal
+        </Button>
+      </div>
+
+      <Modal show={showModal} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Aviso Legal</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Esta página web ha sido creada exclusivamente con fines educativos y de aprendizaje. No tiene ningún propósito comercial ni busca generar ingresos.</p>
+          <p>Todo el contenido presentado es únicamente para demostrar habilidades de desarrollo y aprendizaje en el ámbito de la programación web.</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   )
 }

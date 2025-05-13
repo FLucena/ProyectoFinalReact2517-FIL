@@ -1,10 +1,27 @@
 "use client"
 
 import { Card, Button, Badge } from "react-bootstrap"
-import { ShoppingCart } from "lucide-react"
+import { ShoppingCart, Minus, Plus, Trash2 } from "lucide-react"
+import { useState, useEffect } from "react"
 
-const ProductCard = ({ product, addToCart }) => {
+const ProductCard = ({ product, addToCart, removeFromCart, cartItems, updateQuantity }) => {
   const { title, thumbnail, genre, platform, publisher, release_date } = product
+  const [quantity, setQuantity] = useState(1)
+  const [isAdded, setIsAdded] = useState(false)
+
+  // Update isAdded state when cartItems changes
+  useEffect(() => {
+    if (cartItems) {
+      const cartItem = cartItems.find((item) => item.id === product.id);
+      if (cartItem) {
+        setIsAdded(true);
+        setQuantity(cartItem.quantity);
+      } else {
+        setIsAdded(false);
+        setQuantity(1);
+      }
+    }
+  }, [cartItems, product.id]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -12,6 +29,24 @@ const ProductCard = ({ product, addToCart }) => {
       month: 'long',
       day: 'numeric'
     })
+  }
+
+  const handleAddToCart = () => {
+    addToCart({ ...product, quantity })
+    setIsAdded(true)
+  }
+
+  const handleQuantityChange = (newQuantity) => {
+    if (newQuantity >= 1) {
+      setQuantity(newQuantity)
+      updateQuantity(product.id, newQuantity)
+    }
+  }
+
+  const handleRemove = () => {
+    removeFromCart(product.id)
+    setIsAdded(false)
+    setQuantity(1)
   }
 
   return (
@@ -45,14 +80,41 @@ const ProductCard = ({ product, addToCart }) => {
         <Card.Text className="small text-muted mb-3">
           Fecha de lanzamiento: {formatDate(release_date)}
         </Card.Text>
-        <Button
-          variant="outline-primary"
-          className="mt-auto d-flex align-items-center justify-content-center gap-2"
-          onClick={() => addToCart(product)}
-        >
-          <ShoppingCart size={16} />
-          Añadir al carrito
-        </Button>
+        {!isAdded ? (
+          <Button
+            variant="outline-primary"
+            className="mt-auto d-flex align-items-center justify-content-center gap-2"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart size={16} />
+            Añadir al carrito
+          </Button>
+        ) : (
+          <div className="mt-auto w-100 d-flex justify-content-center">
+            <div className="input-group input-group-sm" style={{ width: "140px" }}>
+              <button
+                onClick={quantity === 1 ? handleRemove : () => handleQuantityChange(quantity - 1)}
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                style={{ width: "40px" }}
+              >
+                {quantity === 1 ? <Trash2 size={14} /> : <Minus size={14} />}
+              </button>
+              <span 
+                className="input-group-text bg-white text-center d-flex align-items-center justify-content-center" 
+                style={{ width: "60px" }}
+              >
+                {quantity}
+              </span>
+              <button
+                onClick={() => handleQuantityChange(quantity + 1)}
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                style={{ width: "40px" }}
+              >
+                <Plus size={14} />
+              </button>
+            </div>
+          </div>
+        )}
       </Card.Body>
     </Card>
   )

@@ -11,7 +11,6 @@ const Login = ({ closeLogin }) => {
   const handleSubmit = (e) => {
     e.preventDefault()
     // En una aplicación real, aquí iría la lógica de autenticación
-    console.log("Formulario enviado:", { email, password, isRegister })
     alert(`Formulario de ${isRegister ? "registro" : "inicio de sesión"} enviado`)
     closeLogin()
   }

@@ -15,8 +15,8 @@ const GameFilters = ({
   hasActiveFilters,
   platforms,
   genres,
-  filteredGames,
-  totalGames,
+  filteredCount,
+  totalCount,
   currentPage,
   setCurrentPage,
   totalPages,
@@ -167,10 +167,10 @@ const GameFilters = ({
         </div>
       </div>
 
-      {totalGames > 0 && (
+      {totalCount > 0 && (
         <div className="d-flex justify-content-between align-items-center mb-3">
           <p className="mb-0 text-muted small">
-            Mostrando <span className="fw-bold">{currentPageGames}</span> de <span className="fw-bold">{totalGames}</span> juegos
+            Mostrando <span className="fw-bold">{currentPageGames}</span> de <span className="fw-bold">{totalCount}</span> juegos
           </p>
           <Pagination size="sm" className="mb-0">
             {renderPaginationItems()}

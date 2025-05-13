@@ -4,80 +4,62 @@ import { useState, useEffect } from "react"
 import ProductCard from "./ProductCard"
 import { Container, Row, Col, Alert, Badge } from "react-bootstrap"
 
-const MustHave = ({ products, addToCart, loading, error }) => {
-  const [mustHaveGames, setMustHaveGames] = useState([])
+const MustHave = ({ games = [], loading, error, addToCart, removeFromCart, updateQuantity, cartItems, searchTerm, selectedPlatform, selectedGenre }) => {
+  // Simula un rating si no existe
+  const gamesWithExtras = games.map(game => ({
+    ...game,
+    rating: game.rating ?? (Math.random() * 2 + 3), // 3.0 - 5.0
+  }));
+  let filteredGames = gamesWithExtras.filter((game) => game.rating >= 4.5);
 
-  useEffect(() => {
-    // Filtramos juegos populares basados en ciertos criterios
-    const popularGames = products
-      .filter(game => {
-        // Simulamos popularidad basada en el título y género
-        const isPopular = 
-          game.title.toLowerCase().includes('war') ||
-          game.title.toLowerCase().includes('battle') ||
-          game.genre.toLowerCase().includes('rpg') ||
-          game.genre.toLowerCase().includes('action')
-        return isPopular
-      })
-      .map(game => ({
-        ...game,
-        price: 39.99, // Precio premium para juegos infaltables
-        isMustHave: true
-      }))
-    setMustHaveGames(popularGames)
-  }, [products])
-
-  if (loading) {
-    return (
-      <Container className="py-5">
-        <Alert variant="info">Cargando juegos infaltables...</Alert>
-      </Container>
-    )
+  // Aplica filtros
+  if (searchTerm) {
+    filteredGames = filteredGames.filter(game =>
+      game.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }
+  if (selectedPlatform && selectedPlatform !== 'Todas las Plataformas') {
+    filteredGames = filteredGames.filter(game =>
+      game.platform.toLowerCase().includes(selectedPlatform.toLowerCase())
+    );
+  }
+  if (selectedGenre && selectedGenre !== 'Todos los Géneros') {
+    filteredGames = filteredGames.filter(game =>
+      game.genre.toLowerCase().includes(selectedGenre.toLowerCase())
+    );
   }
 
-  if (error) {
-    return (
-      <Container className="py-5">
-        <Alert variant="danger">{error}</Alert>
-      </Container>
-    )
-  }
+  const totalMustHave = gamesWithExtras.filter(game => game.rating >= 4.5).length;
+  console.log('MustHave - games:', games, 'filteredGames:', filteredGames);
 
   return (
-    <Container className="py-5">
-      <div className="text-center mb-5">
-        <h1 className="mb-3">Juegos Infaltables</h1>
-        <p className="text-muted">
-          Descubre los títulos más aclamados y populares que no pueden faltar en tu biblioteca
-        </p>
-      </div>
-      
-      <Row xs={1} sm={2} md={3} lg={4} className="g-4">
-        {mustHaveGames.map((game) => (
-          <Col key={game.id}>
-            <div className="position-relative">
-              <ProductCard 
-                product={game} 
+    <div className="container py-4">
+      <h2 className="mb-4">Must Have</h2>
+      {loading ? (
+        <div className="text-center">
+          <div className="spinner-border text-danger" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="alert alert-danger">{error}</div>
+      ) : (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+          {filteredGames.map((game) => (
+            <div key={game.id} className="col">
+              <ProductCard
+                product={game}
                 addToCart={addToCart}
+                removeFromCart={removeFromCart}
+                updateQuantity={updateQuantity}
+                cartItems={cartItems}
               />
-              <Badge 
-                bg="warning" 
-                text="dark" 
-                className="position-absolute top-0 start-0 m-2"
-              >
-                Infaltable
-              </Badge>
             </div>
-            <div className="text-center mt-2">
-              <span className="fw-bold">
-                ${game.price.toFixed(2)}
-              </span>
-            </div>
-          </Col>
-        ))}
-      </Row>
-    </Container>
-  )
-}
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default MustHave 
