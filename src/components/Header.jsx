@@ -1,10 +1,10 @@
 "use client"
 
 import { Navbar, Container, Button } from "react-bootstrap"
-import { Bookmark, User } from "lucide-react"
+import { ShoppingCart, User } from "lucide-react"
 import { useState, useEffect } from "react"
 
-const Header = ({ collectionCount, toggleCollection, toggleLogin }) => {
+const Header = ({ cartCount, toggleCart, toggleLogin }) => {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
@@ -30,17 +30,27 @@ const Header = ({ collectionCount, toggleCollection, toggleLogin }) => {
       }}
     >
       <Container>
-        <Navbar.Brand href="/" className="fw-bold">Mi nuevo vicio</Navbar.Brand>
+        <Navbar.Brand href="/" className="fw-bold d-flex align-items-center gap-2">
+          <img src="/logo.png" alt="Logo" style={{ height: 48, width: 48 }} />
+          <span>Mi Nuevo Vicio</span>
+        </Navbar.Brand>
+        <Navbar.Toggle aria-controls="main-navbar-nav" />
+        <Navbar.Collapse id="main-navbar-nav">
+          <nav className="ms-3 d-flex align-items-center gap-3">
+            <a href="/ofertas" className="nav-link text-light">Ofertas</a>
+            <a href="/infaltables" className="nav-link text-light">Infaltables</a>
+          </nav>
+        </Navbar.Collapse>
         <div className="d-flex gap-2">
           <Button
             variant="outline-light"
             className="d-flex align-items-center gap-2"
-            onClick={toggleCollection}
+            onClick={toggleCart}
           >
-            <Bookmark size={20} />
-            <span>Mi Colección</span>
-            {collectionCount > 0 && (
-              <span className="badge bg-danger rounded-pill">{collectionCount}</span>
+            <ShoppingCart size={20} />
+            <span>Carrito</span>
+            {cartCount > 0 && (
+              <span className="badge bg-danger rounded-pill">{cartCount}</span>
             )}
           </Button>
           <Button

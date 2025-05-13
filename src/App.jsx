@@ -5,11 +5,14 @@ import { Routes, Route } from "react-router-dom"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
 import ProductList from "./components/ProductList"
-import Collection from "./components/Collection"
+import Cart from "./components/Collection"
 import Login from "./components/Login"
 import GameFilters from "./components/GameFilters"
+import Offers from "./components/Offers"
+import MustHave from "./components/MustHave"
 import { useGames } from "./hooks/useGames"
 import { useGameFilters } from "./hooks/useGameFilters"
+import { useCart } from "./hooks/useCart"
 
 function App() {
   const { games, loading, error } = useGames();
@@ -34,36 +37,28 @@ function App() {
     currentPageGames
   } = useGameFilters(games);
 
-  const [collection, setCollection] = useState([])
-  const [isCollectionOpen, setIsCollectionOpen] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const {
+    items: cartItems,
+    isOpen: isCartOpen,
+    addToCart,
+    removeFromCart,
+    toggleCart,
+    closeCart,
+    itemCount: cartCount
+  } = useCart();
 
-  const addToCollection = (game) => {
-    const existingItem = collection.find((item) => item.id === game.id)
-    if (!existingItem) {
-      setCollection([...collection, game])
-    }
-  }
-
-  const removeFromCollection = (gameId) => {
-    setCollection(collection.filter((item) => item.id !== gameId))
-  }
-
-  const toggleCollection = () => {
-    setIsCollectionOpen(!isCollectionOpen)
-    if (isLoginOpen) setIsLoginOpen(false)
-  }
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   const toggleLogin = () => {
-    setIsLoginOpen(!isLoginOpen)
-    if (isCollectionOpen) setIsCollectionOpen(false)
-  }
+    setIsLoginOpen(!isLoginOpen);
+    if (isCartOpen) closeCart();
+  };
 
   return (
     <div className="d-flex flex-column min-vh-100">
       <Header
-        collectionCount={collection.length}
-        toggleCollection={toggleCollection}
+        cartCount={cartCount}
+        toggleCart={toggleCart}
         toggleLogin={toggleLogin}
       />
 
@@ -89,13 +84,35 @@ function App() {
           currentPageGames={currentPageGames}
         />
 
-        <Routes>
+        <Routes future={{ v7_relativeSplatPath: true }}>
           <Route
             path="/"
             element={
               <ProductList 
                 products={filteredGames} 
-                addToCollection={addToCollection} 
+                addToCart={addToCart} 
+                loading={loading} 
+                error={error} 
+              />
+            }
+          />
+          <Route
+            path="/ofertas"
+            element={
+              <Offers 
+                products={filteredGames} 
+                addToCart={addToCart} 
+                loading={loading} 
+                error={error} 
+              />
+            }
+          />
+          <Route
+            path="/infaltables"
+            element={
+              <MustHave 
+                products={filteredGames} 
+                addToCart={addToCart} 
                 loading={loading} 
                 error={error} 
               />
@@ -103,11 +120,11 @@ function App() {
           />
         </Routes>
 
-        {isCollectionOpen && (
-          <Collection
-            collection={collection}
-            removeFromCollection={removeFromCollection}
-            closeCollection={() => setIsCollectionOpen(false)}
+        {isCartOpen && (
+          <Cart
+            collection={cartItems}
+            removeFromCollection={removeFromCart}
+            closeCollection={closeCart}
           />
         )}
 

@@ -1,9 +1,9 @@
 "use client"
 
 import { Card, Button, Badge } from "react-bootstrap"
-import { Bookmark } from "lucide-react"
+import { ShoppingCart } from "lucide-react"
 
-const ProductCard = ({ product, addToCollection }) => {
+const ProductCard = ({ product, addToCart }) => {
   const { title, thumbnail, genre, platform, publisher, release_date } = product
 
   const formatDate = (dateString) => {
@@ -48,10 +48,10 @@ const ProductCard = ({ product, addToCollection }) => {
         <Button
           variant="outline-primary"
           className="mt-auto d-flex align-items-center justify-content-center gap-2"
-          onClick={() => addToCollection(product)}
+          onClick={() => addToCart(product)}
         >
-          <Bookmark size={16} />
-          Añadir a colección
+          <ShoppingCart size={16} />
+          Añadir al carrito
         </Button>
       </Card.Body>
     </Card>
