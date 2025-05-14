@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Routes, Route, useLocation } from "react-router-dom"
+import { Routes, Route, useLocation, Navigate } from "react-router-dom"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
 import ProductList from "./components/ProductList"
@@ -10,9 +10,12 @@ import Login from "./components/Login"
 import GameFilters from "./components/GameFilters"
 import Offers from "./components/Offers"
 import MustHave from "./components/MustHave"
+import Perfil from "./pages/Perfil"
+import Admin from "./pages/Admin"
 import { useGames } from "./hooks/useGames"
 import { useGameFilters } from "./hooks/useGameFilters"
 import { useCart } from "./hooks/useCart"
+import { AuthProvider } from "./context/AuthContext"
 
 function App() {
   const { games, loading, error } = useGames();
@@ -60,12 +63,12 @@ function App() {
   const handleCartExited = () => setCartShouldRender(false);
 
   const toggleLogin = () => {
-    setIsLoginOpen(!isLoginOpen);
+    setIsLoginOpen(true);
     if (isCartOpen) closeCart();
   };
 
-  // Don't show filters on login page
-  const showFilters = !location.pathname.includes('/login');
+  // Don't show filters on login, perfil, and admin pages
+  const showFilters = !['/login', '/perfil', '/admin'].includes(location.pathname);
 
   // --- Count logic for each page ---
   // Home
@@ -114,113 +117,125 @@ function App() {
   }
 
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <Header
-        cartCount={cartCount}
-        toggleCart={toggleCart}
-        toggleLogin={toggleLogin}
-      />
+    <AuthProvider>
+      <div className="d-flex flex-column min-vh-100">
+        <Header
+          cartCount={cartCount}
+          toggleCart={toggleCart}
+          toggleLogin={toggleLogin}
+        />
 
-      <main className="flex-grow-1" style={{ paddingTop: '6rem' }}>
-        {showFilters && (
-          <div className="container">
-            <GameFilters
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              selectedPlatform={selectedPlatform}
-              setSelectedPlatform={setSelectedPlatform}
-              selectedGenre={selectedGenre}
-              setSelectedGenre={setSelectedGenre}
-              sortBy={sortBy}
-              setSortBy={setSortBy}
-              clearFilters={clearFilters}
-              hasActiveFilters={hasActiveFilters}
-              platforms={platforms}
-              genres={genres}
-              filteredGames={filteredGames}
-              totalGames={totalGames}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={totalPages}
-              currentPageGames={currentPageGames}
-              filteredCount={pageFilteredCount}
-              totalCount={pageTotalCount}
+        <main className="flex-grow-1" style={{ paddingTop: '6rem' }}>
+          {showFilters && (
+            <div className="container">
+              <GameFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                selectedPlatform={selectedPlatform}
+                setSelectedPlatform={setSelectedPlatform}
+                selectedGenre={selectedGenre}
+                setSelectedGenre={setSelectedGenre}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                clearFilters={clearFilters}
+                hasActiveFilters={hasActiveFilters}
+                platforms={platforms}
+                genres={genres}
+                filteredGames={filteredGames}
+                totalGames={totalGames}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalPages={totalPages}
+                currentPageGames={currentPageGames}
+                filteredCount={pageFilteredCount}
+                totalCount={pageTotalCount}
+              />
+            </div>
+          )}
+
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ProductList 
+                  products={filteredGames} 
+                  addToCart={addToCart} 
+                  removeFromCart={removeFromCart}
+                  cartItems={cartItems}
+                  updateQuantity={updateQuantity}
+                  loading={loading} 
+                  error={error} 
+                />
+              }
             />
-          </div>
-        )}
+            <Route
+              path="/ofertas"
+              element={
+                <Offers 
+                  games={games} 
+                  addToCart={addToCart} 
+                  removeFromCart={removeFromCart}
+                  cartItems={cartItems}
+                  updateQuantity={updateQuantity}
+                  loading={loading} 
+                  error={error} 
+                  searchTerm={searchTerm}
+                  selectedPlatform={selectedPlatform}
+                  selectedGenre={selectedGenre}
+                />
+              }
+            />
+            <Route
+              path="/infaltables"
+              element={
+                <MustHave 
+                  games={games} 
+                  addToCart={addToCart} 
+                  removeFromCart={removeFromCart}
+                  cartItems={cartItems}
+                  updateQuantity={updateQuantity}
+                  loading={loading} 
+                  error={error} 
+                  searchTerm={searchTerm}
+                  selectedPlatform={selectedPlatform}
+                  selectedGenre={selectedGenre}
+                />
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                isLoginOpen ? (
+                  <Login closeLogin={() => setIsLoginOpen(false)} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
 
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <ProductList 
-                products={filteredGames} 
-                addToCart={addToCart} 
-                removeFromCart={removeFromCart}
-                cartItems={cartItems}
-                updateQuantity={updateQuantity}
-                loading={loading} 
-                error={error} 
-              />
-            }
-          />
-          <Route
-            path="/ofertas"
-            element={
-              <Offers 
-                games={games} 
-                addToCart={addToCart} 
-                removeFromCart={removeFromCart}
-                cartItems={cartItems}
-                updateQuantity={updateQuantity}
-                loading={loading} 
-                error={error} 
-                searchTerm={searchTerm}
-                selectedPlatform={selectedPlatform}
-                selectedGenre={selectedGenre}
-              />
-            }
-          />
-          <Route
-            path="/infaltables"
-            element={
-              <MustHave 
-                games={games} 
-                addToCart={addToCart} 
-                removeFromCart={removeFromCart}
-                cartItems={cartItems}
-                updateQuantity={updateQuantity}
-                loading={loading} 
-                error={error} 
-                searchTerm={searchTerm}
-                selectedPlatform={selectedPlatform}
-                selectedGenre={selectedGenre}
-              />
-            }
-          />
-          <Route
-            path="/login"
-            element={
-              <Login closeLogin={() => setIsLoginOpen(false)} />
-            }
-          />
-        </Routes>
+          {isLoginOpen && (
+            <Login closeLogin={() => setIsLoginOpen(false)} />
+          )}
 
-        {cartShouldRender && (
-          <Cart
-            cart={cartItems}
-            removeFromCart={removeFromCart}
-            closeCart={closeCart}
-            updateQuantity={updateQuantity}
-            clearCart={clearCart}
-            isOpen={isCartOpen}
-            onExited={handleCartExited}
-          />
-        )}
-      </main>
+          {cartShouldRender && (
+            <Cart
+              cart={cartItems}
+              removeFromCart={removeFromCart}
+              closeCart={closeCart}
+              updateQuantity={updateQuantity}
+              clearCart={clearCart}
+              isOpen={isCartOpen}
+              onExited={handleCartExited}
+            />
+          )}
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </AuthProvider>
   )
 }
 

@@ -1,9 +1,20 @@
 "use client"
 
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { ShoppingCart, User } from "lucide-react"
+import { useAuth } from "../context/AuthContext"
 
 const Header = ({ cartCount, toggleCart, toggleLogin }) => {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    if (!isAuthenticated) {
+      toggleLogin();
+      navigate('/login');
+    }
+  };
+
   return (
     <header className="fixed-top bg-dark text-white">
       <nav className="navbar navbar-expand-lg navbar-dark">
@@ -41,6 +52,20 @@ const Header = ({ cartCount, toggleCart, toggleLogin }) => {
                   Infaltables
                 </Link>
               </li>
+              {isAuthenticated && (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/perfil">
+                      Perfil
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/admin">
+                      Admin
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
 
             <div className="d-flex align-items-center">
@@ -59,12 +84,21 @@ const Header = ({ cartCount, toggleCart, toggleLogin }) => {
                 )}
               </button>
 
-              <button
-                className="btn btn-outline-light"
-                onClick={toggleLogin}
-              >
-                <User size={20} />
-              </button>
+              {isAuthenticated ? (
+                <button
+                  className="btn btn-outline-light"
+                  onClick={logout}
+                >
+                  Cerrar Sesión
+                </button>
+              ) : (
+                <button
+                  className="btn btn-outline-light"
+                  onClick={handleLoginClick}
+                >
+                  <User size={20} />
+                </button>
+              )}
             </div>
           </div>
         </div>

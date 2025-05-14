@@ -2,17 +2,21 @@
 
 import { useState } from "react"
 import { X } from "lucide-react"
+import { useAuth } from "../context/AuthContext"
 
 const Login = ({ closeLogin }) => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isRegister, setIsRegister] = useState(false)
+  const { login } = useAuth()
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // En una aplicación real, aquí iría la lógica de autenticación
-    alert(`Formulario de ${isRegister ? "registro" : "inicio de sesión"} enviado`)
-    closeLogin()
+    if (login(email, password)) {
+      closeLogin()
+    } else {
+      alert('Credenciales inválidas')
+    }
   }
 
   return (
