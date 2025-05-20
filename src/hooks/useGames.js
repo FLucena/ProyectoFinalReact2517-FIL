@@ -62,39 +62,14 @@ export const useGames = () => {
         try {
           setLoading(true);
           
-          // Try different API endpoints and proxies
-          const endpoints = [
-            {
-              url: "https://api.allorigins.win/raw?url=https://www.freetogame.com/api/games",
-              name: "allorigins"
-            },
-            {
-              url: "https://corsproxy.io/?https://www.freetogame.com/api/games",
-              name: "corsproxy"
-            },
-            {
-              url: "https://www.freetogame.com/api/games",
-              name: "direct"
-            }
-          ];
+          // Use a more reliable CORS proxy
+          const proxyUrl = "https://api.allorigins.win/raw?url=";
+          const targetUrl = "https://www.freetogame.com/api/games";
+          const url = `${proxyUrl}${encodeURIComponent(targetUrl)}`;
           
-          let lastError = null;
-          
-          for (const endpoint of endpoints) {
-            try {
-              const data = await fetchWithTimeout(
-                endpoint.url,
-                TIMEOUT_MS
-              );
-              setGames(data);
-              setError(null);
-              return;
-            } catch (err) {
-              lastError = err;
-            }
-          }
-          
-          throw lastError;
+          const data = await fetchWithTimeout(url, TIMEOUT_MS);
+          setGames(data);
+          setError(null);
         } catch (err) {
           if (err.name === 'AbortError') {
             throw new Error("La solicitud ha excedido el tiempo de espera");
@@ -115,10 +90,12 @@ export const useGames = () => {
             if (retryCount === MAX_RETRIES) {
               const errorMessage = err.message === "La solicitud ha excedido el tiempo de espera"
                 ? "La solicitud tardó demasiado en completarse. Por favor, inténtalo de nuevo más tarde."
-                : `Error al cargar los juegos después de ${MAX_RETRIES} intentos: ${err.message}`;
+                : `Error al cargar los juegos después de ${MAX_RETRIES} intentos. Pruebe nuevamente en unos minutos.`;
               setError(errorMessage);
             } else {
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              // Exponential backoff
+              const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 10000);
+              await new Promise(resolve => setTimeout(resolve, delay));
             }
           }
         }

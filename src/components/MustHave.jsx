@@ -28,10 +28,7 @@ const MustHave = ({ games = [], loading, error, addToCart, removeFromCart, updat
       game.genre.toLowerCase().includes(selectedGenre.toLowerCase())
     );
   }
-
-  const totalMustHave = gamesWithExtras.filter(game => game.rating >= 4.5).length;
-  console.log('MustHave - games:', games, 'filteredGames:', filteredGames);
-
+  
   return (
     <div className="container py-4">
       <h2 className="mb-4">Must Have</h2>

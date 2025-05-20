@@ -29,9 +29,6 @@ const Offers = ({ games = [], loading, error, addToCart, removeFromCart, updateQ
     );
   }
 
-  const totalOffers = gamesWithExtras.filter(game => game.discount > 0).length;
-  console.log('Offers - games:', games, 'filteredGames:', filteredGames);
-
   return (
     <div className="container py-4">
       <h2 className="mb-4">Ofertas Especiales</h2>
