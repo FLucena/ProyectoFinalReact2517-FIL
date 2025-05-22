@@ -1,8 +1,9 @@
 "use client"
 
 import { Card, Button, Badge } from "react-bootstrap"
-import { ShoppingCart, Minus, Plus, Trash2 } from "lucide-react"
+import { ShoppingCart, Minus, Plus, Trash2, Eye } from "lucide-react"
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 
 const ProductCard = ({ product, addToCart, removeFromCart, cartItems, updateQuantity }) => {
   const { title, thumbnail, genre, platform, publisher, release_date } = product
@@ -37,8 +38,9 @@ const ProductCard = ({ product, addToCart, removeFromCart, cartItems, updateQuan
 
   const handleQuantityChange = (newQuantity) => {
     if (newQuantity >= 1) {
-      setQuantity(newQuantity)
-      updateQuantity(product.id, newQuantity)
+      const prevQuantity = quantity;
+      setQuantity(newQuantity);
+      updateQuantity(product.id, newQuantity, prevQuantity);
     }
   }
 
@@ -79,6 +81,14 @@ const ProductCard = ({ product, addToCart, removeFromCart, cartItems, updateQuan
         <Card.Text className="small text-muted mb-3">
           Fecha de lanzamiento: {formatDate(release_date)}
         </Card.Text>
+        
+        <div className="d-flex gap-2 mb-2">
+          <Link to={`/product/${product.id}`} className="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center gap-1">
+            <Eye size={15} />
+            Detalles
+          </Link>
+        </div>
+        
         {!isAdded ? (
           <Button
             variant="outline-primary"

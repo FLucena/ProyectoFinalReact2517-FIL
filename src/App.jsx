@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { Routes, Route, useLocation, Navigate } from "react-router-dom"
+import { Toaster, toast } from "sonner"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
 import ProductList from "./components/ProductList"
+import ProductDetail from "./components/ProductDetail"
+import DebugGames from "./components/DebugGames"
 import Cart from "./components/Cart"
 import Login from "./components/Login"
 import GameFilters from "./components/GameFilters"
@@ -43,13 +46,13 @@ function App() {
   const {
     items: cartItems,
     isOpen: isCartOpen,
-    addToCart,
-    removeFromCart,
+    addToCart: originalAddToCart,
+    removeFromCart: originalRemoveFromCart,
     toggleCart,
     closeCart,
     itemCount: cartCount,
-    updateQuantity,
-    clearCart
+    updateQuantity: originalUpdateQuantity,
+    clearCart: originalClearCart
   } = useCart();
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -110,9 +113,56 @@ function App() {
     pageTotalCount = mustHaveTotalCount;
   }
 
+  const addToCart = (item) => {
+    originalAddToCart(item);
+    toast.success(`${item.title} agregado al carrito`, {
+      position: "top-right",
+      duration: 2000,
+    });
+  };
+
+  const updateQuantity = (itemId, quantity, prevQuantity) => {
+    const item = cartItems.find(item => item.id === itemId);
+    if (!item) return;
+    
+    originalUpdateQuantity(itemId, quantity);
+    
+    if (quantity > prevQuantity) {
+      toast.success(`${item.title} agregado al carrito`, {
+        position: "top-right",
+        duration: 2000,
+      });
+    } else if (quantity < prevQuantity) {
+      toast.error(`${item.title} reducido en el carrito`, {
+        position: "top-right",
+        duration: 2000,
+      });
+    }
+  };
+  
+  const removeFromCart = (itemId) => {
+    const item = cartItems.find(item => item.id === itemId);
+    if (item) {
+      originalRemoveFromCart(itemId);
+      toast.error(`${item.title} eliminado del carrito`, {
+        position: "top-right",
+        duration: 2000,
+      });
+    }
+  };
+
+  const clearCart = () => {
+    originalClearCart();
+    toast.error('Carrito vaciado', {
+      position: "top-right",
+      duration: 2000,
+    });
+  };
+
   return (
     <AuthProvider>
       <div className="d-flex flex-column min-vh-100">
+        <Toaster richColors />
         <Header
           cartCount={cartCount}
           toggleCart={toggleCart}
@@ -163,6 +213,20 @@ function App() {
               }
             />
             <Route
+              path="/product/:id"
+              element={
+                <ProductDetail
+                  games={games}
+                  addToCart={addToCart}
+                  removeFromCart={removeFromCart}
+                  cartItems={cartItems}
+                  updateQuantity={updateQuantity}
+                  loading={loading}
+                  error={error}
+                />
+              }
+            />
+            <Route
               path="/ofertas"
               element={
                 <Offers 
@@ -208,6 +272,16 @@ function App() {
             />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/admin" element={<Admin />} />
+            <Route
+              path="/debug"
+              element={
+                <DebugGames
+                  games={games}
+                  loading={loading}
+                  error={error}
+                />
+              }
+            />
           </Routes>
 
           {isLoginOpen && (
