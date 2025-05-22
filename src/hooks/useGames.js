@@ -61,8 +61,6 @@ export const useGames = () => {
       const attemptFetch = async () => {
         try {
           setLoading(true);
-          
-          // Use a more reliable CORS proxy
           const proxyUrl = "https://api.allorigins.win/raw?url=";
           const targetUrl = "https://www.freetogame.com/api/games";
           const url = `${proxyUrl}${encodeURIComponent(targetUrl)}`;
@@ -93,7 +91,6 @@ export const useGames = () => {
                 : `Error al cargar los juegos después de ${MAX_RETRIES} intentos. Pruebe nuevamente en unos minutos.`;
               setError(errorMessage);
             } else {
-              // Exponential backoff
               const delay = Math.min(1000 * Math.pow(2, retryCount - 1), 10000);
               await new Promise(resolve => setTimeout(resolve, delay));
             }

@@ -127,7 +127,6 @@ const Cart = ({ cart, removeFromCart, closeCart, updateQuantity, clearCart, isOp
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Delete Confirmation Modal */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Confirmar Eliminación</Modal.Title>
@@ -145,7 +144,6 @@ const Cart = ({ cart, removeFromCart, closeCart, updateQuantity, clearCart, isOp
         </Modal.Footer>
       </Modal>
 
-      {/* Clear Cart Confirmation Modal */}
       <Modal show={showClearModal} onHide={() => setShowClearModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Vaciar Carrito</Modal.Title>

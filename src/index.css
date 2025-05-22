@@ -1,4 +1,3 @@
-/* Bootstrap CSS */
 @import "bootstrap/dist/css/bootstrap.min.css";
 
 :root {
@@ -45,13 +44,11 @@ body {
   min-height: 100vh;
 }
 
-/* Custom hover effect for footer links */
 .hover-text-white:hover {
   color: white !important;
   transition: color 0.3s ease;
 }
 
-/* Custom styles for product cards */
 .card {
   transition: transform 0.2s, box-shadow 0.2s;
 }

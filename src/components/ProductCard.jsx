@@ -9,7 +9,6 @@ const ProductCard = ({ product, addToCart, removeFromCart, cartItems, updateQuan
   const [quantity, setQuantity] = useState(1)
   const [isAdded, setIsAdded] = useState(false)
 
-  // Update isAdded state when cartItems changes
   useEffect(() => {
     if (cartItems) {
       const cartItem = cartItems.find((item) => item.id === product.id);

@@ -47,9 +47,6 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Add any custom styles below */
-
-/* Smaller placeholder for filter inputs */
 .form-control::placeholder {
   font-size: 0.85rem;
 }

@@ -67,15 +67,11 @@ function App() {
     if (isCartOpen) closeCart();
   };
 
-  // Don't show filters on login, perfil, and admin pages
   const showFilters = !['/login', '/perfil', '/admin'].includes(location.pathname);
 
-  // --- Count logic for each page ---
-  // Home
   let filteredCount = filteredGames.length;
   let totalCount = games.length;
 
-  // Offers
   const gamesWithDiscount = games.map(game => ({
     ...game,
     discount: game.discount ?? Math.floor(Math.random() * 40),
@@ -90,7 +86,6 @@ function App() {
   }).length;
   let offersTotalCount = offersFiltered.length;
 
-  // MustHave
   const gamesWithRating = games.map(game => ({
     ...game,
     rating: game.rating ?? (Math.random() * 2 + 3),
@@ -105,7 +100,6 @@ function App() {
   }).length;
   let mustHaveTotalCount = mustHaveFiltered.length;
 
-  // Decide which counts to use
   let pageFilteredCount = filteredCount;
   let pageTotalCount = totalCount;
   if (location.pathname === '/ofertas') {

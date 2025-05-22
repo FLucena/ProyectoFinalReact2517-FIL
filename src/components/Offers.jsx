@@ -5,14 +5,12 @@ import ProductCard from "./ProductCard"
 import { Container, Row, Col, Alert } from "react-bootstrap"
 
 const Offers = ({ games = [], loading, error, addToCart, removeFromCart, updateQuantity, cartItems, searchTerm, selectedPlatform, selectedGenre }) => {
-  // Simula un descuento si no existe
   const gamesWithExtras = games.map(game => ({
     ...game,
-    discount: game.discount ?? Math.floor(Math.random() * 40), // 0-39%
+    discount: game.discount ?? Math.floor(Math.random() * 40),
   }));
   let filteredGames = gamesWithExtras.filter((game) => game.discount > 0);
 
-  // Aplica filtros
   if (searchTerm) {
     filteredGames = filteredGames.filter(game =>
       game.title.toLowerCase().includes(searchTerm.toLowerCase())

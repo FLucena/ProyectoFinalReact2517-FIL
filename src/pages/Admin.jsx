@@ -15,7 +15,6 @@ const Admin = () => {
   return (
     <div className="container-fluid py-5">
       <div className="row">
-        {/* Sidebar */}
         <div className="col-md-3 col-lg-2">
           <div className="list-group">
             <button 
@@ -45,7 +44,6 @@ const Admin = () => {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="col-md-9 col-lg-10">
           <div className="card shadow">
             <div className="card-body">

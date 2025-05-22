@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   const login = (email, password) => {
-    // Simulate authentication
     if (email && password) {
       setIsAuthenticated(true);
       setUser({ email });

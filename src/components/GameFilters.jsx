@@ -37,7 +37,6 @@ const GameFilters = ({
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
-    // First page
     items.push(
       <Pagination.First
         key="first"
@@ -46,7 +45,6 @@ const GameFilters = ({
       />
     );
 
-    // Previous page
     items.push(
       <Pagination.Prev
         key="prev"
@@ -55,7 +53,6 @@ const GameFilters = ({
       />
     );
 
-    // Page numbers
     for (let number = startPage; number <= endPage; number++) {
       items.push(
         <Pagination.Item
@@ -68,7 +65,6 @@ const GameFilters = ({
       );
     }
 
-    // Next page
     items.push(
       <Pagination.Next
         key="next"
@@ -77,7 +73,6 @@ const GameFilters = ({
       />
     );
 
-    // Last page
     items.push(
       <Pagination.Last
         key="last"

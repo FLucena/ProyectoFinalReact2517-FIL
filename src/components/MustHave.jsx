@@ -5,14 +5,12 @@ import ProductCard from "./ProductCard"
 import { Container, Row, Col, Alert, Badge } from "react-bootstrap"
 
 const MustHave = ({ games = [], loading, error, addToCart, removeFromCart, updateQuantity, cartItems, searchTerm, selectedPlatform, selectedGenre }) => {
-  // Simula un rating si no existe
   const gamesWithExtras = games.map(game => ({
     ...game,
-    rating: game.rating ?? (Math.random() * 2 + 3), // 3.0 - 5.0
+    rating: game.rating ?? (Math.random() * 2 + 3),
   }));
   let filteredGames = gamesWithExtras.filter((game) => game.rating >= 4.5);
 
-  // Aplica filtros
   if (searchTerm) {
     filteredGames = filteredGames.filter(game =>
       game.title.toLowerCase().includes(searchTerm.toLowerCase())
