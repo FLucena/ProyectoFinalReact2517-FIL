@@ -4,44 +4,35 @@ import { Container, Row, Col, Button, Badge, Spinner, Alert } from "react-bootst
 import { ArrowLeft, ShoppingCart, Minus, Plus, Trash2, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { useGameDetail } from "../hooks/useGameDetail";
 
-const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updateQuantity, cartItems }) => {
+const ProductDetail = ({ games, loading: gamesLoading, error: gamesError, addToCart, removeFromCart, updateQuantity, cartItems }) => {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
+  const { game: detailedGame, loading: detailLoading, error: detailError } = useGameDetail(id);
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [product, setProduct] = useState(null);
 
   useEffect(() => {
     if (games && games.length > 0) {
-      // Try to find the game with a case-insensitive string comparison
       const foundProduct = games.find(game => 
         String(game.id) === String(id) ||
         (typeof game.id === 'number' && game.id === parseInt(id, 10))
       );
       
       if (foundProduct) {
-        console.log("Found game:", foundProduct);
+        console.log("Found basic game info:", foundProduct);
         setProduct(foundProduct);
-      } else {
-        // If no game is found, create a sample game with the ID
-        console.log(`Game with ID ${id} not found. Games available:`, games.length);
-        
-        const sampleGame = {
-          id: id,
-          title: `Juego ${id}`,
-          thumbnail: 'https://via.placeholder.com/350x200?text=Game+Image',
-          description: 'Este es un juego de ejemplo porque no se encontró el juego original en la base de datos.',
-          genre: 'Desconocido',
-          platform: 'PC',
-          publisher: 'Desconocido',
-          release_date: new Date().toISOString(),
-          price: 29.99
-        };
-        
-        setProduct(sampleGame);
       }
     }
   }, [games, id]);
+
+  useEffect(() => {
+    if (detailedGame) {
+      console.log("Setting detailed game info:", detailedGame);
+      setProduct(detailedGame);
+    }
+  }, [detailedGame]);
 
   useEffect(() => {
     if (cartItems && product) {
@@ -92,7 +83,10 @@ const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updat
     }
   };
 
-  if (loading) {
+  const loading = gamesLoading || detailLoading;
+  const error = detailError || gamesError;
+
+  if (loading && !product) {
     return (
       <Container className="py-5">
         <div className="text-center">
@@ -102,7 +96,7 @@ const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updat
     );
   }
 
-  if (error) {
+  if (error && !product) {
     return (
       <Container className="py-5">
         <Alert variant="danger">
@@ -116,8 +110,12 @@ const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updat
     return (
       <Container className="py-5">
         <Alert variant="warning">
-          No se encontró el juego. <Link to="/" className="alert-link">Volver a la tienda</Link>
+          No se encontró el juego con ID {id}. <Link to="/" className="alert-link">Volver a la tienda</Link>
         </Alert>
+        <div className="mt-4">
+          <p>Puede que el juego no esté disponible en este momento o el ID no exista en nuestra base de datos.</p>
+          <Link to="/" className="btn btn-primary mt-3">Volver a la tienda</Link>
+        </div>
       </Container>
     );
   }
@@ -130,6 +128,10 @@ const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updat
     platform, 
     publisher, 
     release_date,
+    game_url,
+    short_description,
+    screenshots,
+    minimum_system_requirements,
     rating = (Math.random() * 2 + 3).toFixed(1),
     discount = Math.floor(Math.random() * 40),
     price = 29.99
@@ -145,6 +147,18 @@ const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updat
           Volver a la tienda
         </Link>
       </div>
+
+      {detailLoading && (
+        <Alert variant="info">
+          Cargando información detallada del juego...
+        </Alert>
+      )}
+
+      {detailError && (
+        <Alert variant="warning">
+          No se pudo cargar información detallada: {detailError}
+        </Alert>
+      )}
 
       <Row className="g-4">
         <Col md={5}>
@@ -166,6 +180,28 @@ const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updat
               {platform}
             </Badge>
           </div>
+
+          {screenshots && screenshots.length > 0 && (
+            <div className="mt-3">
+              <h5>Capturas de pantalla</h5>
+              <Row className="g-2 mt-2">
+                {screenshots.slice(0, 3).map((screenshot, index) => (
+                  <Col xs={4} key={index}>
+                    <img 
+                      src={screenshot.image} 
+                      alt={`Screenshot ${index+1}`}
+                      className="img-fluid rounded"
+                      style={{height: "80px", width: "100%", objectFit: "cover"}}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/placeholder.svg";
+                      }}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          )}
         </Col>
         
         <Col md={7}>
@@ -187,9 +223,37 @@ const ProductDetail = ({ games, loading, error, addToCart, removeFromCart, updat
               <p className="text-muted mb-1">
                 <strong>Lanzamiento:</strong> {formatDate(release_date)} ({getTimeSinceRelease(release_date)})
               </p>
+              {game_url && (
+                <p className="text-muted mb-1">
+                  <strong>Sitio oficial:</strong> <a href={game_url} target="_blank" rel="noopener noreferrer">{game_url}</a>
+                </p>
+              )}
             </div>
             
-            <p className="mb-4">{description}</p>
+            <p className="mb-4">{short_description || description}</p>
+            
+            {minimum_system_requirements && (
+              <div className="mb-4">
+                <h5>Requisitos mínimos del sistema</h5>
+                <ul className="list-group">
+                  {minimum_system_requirements.os && (
+                    <li className="list-group-item"><strong>SO:</strong> {minimum_system_requirements.os}</li>
+                  )}
+                  {minimum_system_requirements.processor && (
+                    <li className="list-group-item"><strong>Procesador:</strong> {minimum_system_requirements.processor}</li>
+                  )}
+                  {minimum_system_requirements.memory && (
+                    <li className="list-group-item"><strong>Memoria:</strong> {minimum_system_requirements.memory}</li>
+                  )}
+                  {minimum_system_requirements.graphics && (
+                    <li className="list-group-item"><strong>Gráficos:</strong> {minimum_system_requirements.graphics}</li>
+                  )}
+                  {minimum_system_requirements.storage && (
+                    <li className="list-group-item"><strong>Almacenamiento:</strong> {minimum_system_requirements.storage}</li>
+                  )}
+                </ul>
+              </div>
+            )}
             
             <div className="mt-auto">
               <div className="mb-3">

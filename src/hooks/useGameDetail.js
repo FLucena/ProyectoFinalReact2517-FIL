@@ -1,46 +1,41 @@
 import { useState, useEffect } from 'react';
 
-export const useGames = () => {
-  const [games, setGames] = useState([]);
+export const useGameDetail = (gameId) => {
+  const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchGames = async () => {
+    const fetchGameDetail = async () => {
       const MAX_RETRIES = 3;
       const TIMEOUT_MS = 15000;
       let retryCount = 0;
 
       const validateGameData = (data) => {
-        console.log("API returned data:", data ? data.length : 0, "items");
+        console.log("API returned game data:", data);
         
-        if (!Array.isArray(data)) {
-          console.error("Invalid response format, expected array:", data);
-          throw new Error("Formato de respuesta inválido: se esperaba un array");
+        if (!data || typeof data !== 'object') {
+          console.error("Invalid response format, expected object:", data);
+          throw new Error("Formato de respuesta inválido: se esperaba un objeto");
         }
 
-        const filteredData = data.filter(game => {
-          const isValid = (
-            typeof game === 'object' &&
-            game !== null &&
-            typeof game.id === 'number' &&
-            typeof game.title === 'string' &&
-            typeof game.thumbnail === 'string' &&
-            typeof game.genre === 'string' &&
-            typeof game.platform === 'string' &&
-            typeof game.publisher === 'string' &&
-            typeof game.release_date === 'string'
-          );
-          
-          if (!isValid) {
-            console.warn("Filtered out invalid game:", game);
-          }
-          
-          return isValid;
-        });
+        const isValid = (
+          data !== null &&
+          typeof data.id === 'number' &&
+          typeof data.title === 'string' &&
+          typeof data.thumbnail === 'string' &&
+          typeof data.genre === 'string' &&
+          typeof data.platform === 'string' &&
+          typeof data.publisher === 'string' &&
+          typeof data.release_date === 'string'
+        );
         
-        console.log(`Validated ${filteredData.length} of ${data.length} games`);
-        return filteredData;
+        if (!isValid) {
+          console.warn("Invalid game data:", data);
+          throw new Error("Datos del juego inválidos o incompletos");
+        }
+        
+        return data;
       };
 
       const fetchWithTimeout = async (url, timeout) => {
@@ -76,13 +71,13 @@ export const useGames = () => {
         try {
           setLoading(true);
           const proxyUrl = "https://api.allorigins.win/raw?url=";
-          const targetUrl = "https://www.freetogame.com/api/games";
+          const targetUrl = `https://www.freetogame.com/api/game?id=${gameId}`;
           const url = `${proxyUrl}${encodeURIComponent(targetUrl)}`;
           
           const data = await fetchWithTimeout(url, TIMEOUT_MS);
-          setGames(data);
+          setGame(data);
           setError(null);
-          console.log("Successfully loaded", data.length, "games");
+          console.log("Successfully loaded game details for ID:", gameId);
         } catch (err) {
           if (err.name === 'AbortError') {
             throw new Error("La solicitud ha excedido el tiempo de espera");
@@ -105,7 +100,7 @@ export const useGames = () => {
             if (retryCount === MAX_RETRIES) {
               const errorMessage = err.message === "La solicitud ha excedido el tiempo de espera"
                 ? "La solicitud tardó demasiado en completarse. Por favor, inténtalo de nuevo más tarde."
-                : `Error al cargar los juegos después de ${MAX_RETRIES} intentos. Pruebe nuevamente en unos minutos.`;
+                : `Error al cargar los detalles del juego después de ${MAX_RETRIES} intentos. Pruebe nuevamente en unos minutos.`;
               
               setError(errorMessage);
               console.error("All retry attempts failed:", errorMessage);
@@ -118,11 +113,16 @@ export const useGames = () => {
         }
       };
 
-      retryFetch();
+      if (gameId) {
+        retryFetch();
+      } else {
+        setLoading(false);
+        setError("ID de juego no proporcionado");
+      }
     };
 
-    fetchGames();
-  }, []);
+    fetchGameDetail();
+  }, [gameId]);
 
-  return { games, loading, error };
+  return { game, loading, error };
 }; 

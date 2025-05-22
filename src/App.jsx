@@ -7,7 +7,6 @@ import Header from "./components/Header"
 import Footer from "./components/Footer"
 import ProductList from "./components/ProductList"
 import ProductDetail from "./components/ProductDetail"
-import DebugGames from "./components/DebugGames"
 import Cart from "./components/Cart"
 import Login from "./components/Login"
 import GameFilters from "./components/GameFilters"
@@ -272,16 +271,6 @@ function App() {
             />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/admin" element={<Admin />} />
-            <Route
-              path="/debug"
-              element={
-                <DebugGames
-                  games={games}
-                  loading={loading}
-                  error={error}
-                />
-              }
-            />
           </Routes>
 
           {isLoginOpen && (
